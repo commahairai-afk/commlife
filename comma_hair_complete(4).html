@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CommaHair 員工平台 2026</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { 
+      font-family: 'Noto Sans TC', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+// ==================== 全職助理組件 ====================
+const FullTimeAssistantCalculator = ({ onBack }) => {
+  const BASE_SALARY = 29500;
+  const ALLOWANCE_AMOUNT = 2500;
+  
+  const MONTHLY_BONUS_LEVELS = [
+    { threshold: 32000, bonus: 2500, label: 'L3 (高階)' },
+    { threshold: 29500, bonus: 1500, label: 'L2 (中階)' },
+    { threshold: 25000, bonus: 500, label: 'L1 (基本)' },
+  ];
+
+  const YEAR_END_LEVELS = [
+    { threshold: 390000, bonus: 30500, label: '第六階 (巔峰級)' },
+    { threshold: 380000, bonus: 29500, label: '第五階 (全額底薪)' },
+    { threshold: 340000, bonus: 21000, label: '第四階' },
+    { threshold: 330000, bonus: 14500, label: '第三階' },
+    { threshold: 310000, bonus: 9000, label: '第二階' },
+    { threshold: 290000, bonus: 5000, label: '第一階' },
+  ];
+
+  const [personalPerformance, setPersonalPerformance] = useState(35000);
+  const [annualPerformance, setAnnualPerformance] = useState(400000);
+  const [hasAllowance, setHasAllowance] = useState(true);
+
+  const calculations = useMemo(() => {
+    const safePersonalPerformance = Number(personalPerformance) || 0;
+    const safeAnnualPerformance = Number(annualPerformance) || 0;
+
+    let achievementBonus = 0;
+    let currentLevel = '未達標';
+    let nextLevel = null;
+
+    const sortedMonthly = [...MONTHLY_BONUS_LEVELS].sort((a, b) => b.threshold - a.threshold);
+    for (const level of sortedMonthly) {
+      if (safePersonalPerformance >= level.threshold) {
+        achievementBonus = level.bonus;
+        currentLevel = level.label;
+        break;
+      }
+    }
+    for (let i = sortedMonthly.length - 1; i >= 0; i--) {
+      if (safePersonalPerformance < sortedMonthly[i].threshold) {
+        nextLevel = sortedMonthly[i];
+        break;
+      }
+    }
+
+    const excessThreshold = 29500;
+    const excessPerformance = Math.max(0, safePersonalPerformance - excessThreshold);
+    const excessBonus = excessPerformance;
+
+    let baseYearEndBonus = 0;
+    let currentYearEndLevel = '未達標';
+    let nextYearEndLevel = null;
+
+    const sortedYearly = [...YEAR_END_LEVELS].sort((a, b) => b.threshold - a.threshold);
+    for (const level of sortedYearly) {
+      if (safeAnnualPerformance >= level.threshold) {
+        baseYearEndBonus = level.bonus;
+        currentYearEndLevel = level.label;
+        break;
+      }
+    }
+    for (let i = sortedYearly.length - 1; i >= 0; i--) {
+      if (safeAnnualPerformance < sortedYearly[i].threshold) {
+        nextYearEndLevel = sortedYearly[i];
+        break;
+      }
+    }
+
+    const yearEndExcessThreshold = 390000;
+    const yearEndExcessPerformance = Math.max(0, safeAnnualPerformance - yearEndExcessThreshold);
+    const yearEndExcessBonus = yearEndExcessPerformance * 0.06;
+    const totalYearEndBonus = baseYearEndBonus + yearEndExcessBonus;
+
+    const currentAllowance = hasAllowance ? ALLOWANCE_AMOUNT : 0;
+    const totalMonthlySalary = BASE_SALARY + currentAllowance + achievementBonus + excessBonus;
+
+    return {
+      achievementBonus, currentLevel, nextLevel, excessPerformance, excessBonus,
+      currentAllowance, totalMonthlySalary, baseYearEndBonus, yearEndExcessPerformance,
+      yearEndExcessBonus, totalYearEndBonus, currentYearEndLevel, nextYearEndLevel
+    };
+  }, [personalPerformance, annualPerformance, hasAllowance]);
+
+  return (
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '14px', fontWeight: '500', marginBottom: '24px' }}>
+        ← 返回職位選擇
+      </button>
+
+      <div style={{ background: 'linear-gradient(to right, #e0e7ff, #f8fafc)', borderRadius: '16px', padding: '24px', border: '1px solid #c7d2fe', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>全職助理薪資試算</h2>
+        <p style={{ color: '#4b5563' }}>非在校生 · 月獎金 + 年終獎金 + 6% 超額提撥</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+        <div>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>本月績效設定</h3>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>個人單月實績 (NT$)</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#cbd5e1', fontSize: '20px' }}>$</span>
+                <input 
+                  type="number" 
+                  value={personalPerformance}
+                  onChange={(e) => { const v = e.target.value; setPersonalPerformance(v === "" ? "" : parseFloat(v) || 0); }}
+                  style={{ width: '100%', fontSize: '20px', fontWeight: '900', padding: '12px 12px 12px 36px', background: '#f1f5f9', border: '2px solid transparent', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={(e) => e.target.style.borderColor = '#4f46e5'}
+                  onBlur={(e) => e.target.style.borderColor = 'transparent'}
+                />
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setHasAllowance(!hasAllowance)}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: 'none', cursor: 'pointer', background: hasAllowance ? '#4f46e5' : '#f1f5f9', color: hasAllowance ? 'white' : '#64748b', transition: 'all 0.2s' }}
+            >
+              {hasAllowance ? '✓' : '○'} 店務協助 $2,500
+            </button>
+
+            {/* 月業績達標獎勵金 L1/L2/L3 */}
+            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
+              <h4 style={{ fontSize: '13px', fontWeight: 'bold', color: '#475569', marginBottom: '12px' }}>月業績達標獎勵金</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {MONTHLY_BONUS_LEVELS.slice().reverse().map((level) => {
+                  const isReached = personalPerformance >= level.threshold;
+                  return (
+                    <div 
+                      key={level.label}
+                      style={{ padding: '10px', borderRadius: '8px', border: '2px solid', textAlign: 'center', background: isReached ? '#d1fae5' : '#f1f5f9', borderColor: isReached ? '#10b981' : '#e2e8f0', color: isReached ? '#065f46' : '#94a3b8' }}
+                    >
+                      <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>{level.label}</div>
+                      <div style={{ fontSize: '10px', marginBottom: '4px' }}>${level.threshold.toLocaleString()}</div>
+                      <div style={{ fontSize: '12px', fontWeight: 'bold' }}>+${level.bonus.toLocaleString()}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p style={{ fontSize: '11px', color: '#9333ea', marginTop: '8px', fontWeight: 'bold', textAlign: 'center' }}>
+                目前獎金等級：{calculations.currentLevel} (+${calculations.achievementBonus.toLocaleString()})
+              </p>
+            </div>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '2px solid #fbbf24', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>年度累積試算</h3>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>累積年度實績 (NT$)</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#cbd5e1', fontSize: '20px' }}>$</span>
+                <input 
+                  type="number" 
+                  value={annualPerformance}
+                  onChange={(e) => { const v = e.target.value; setAnnualPerformance(v === "" ? "" : parseFloat(v) || 0); }}
+                  style={{ width: '100%', fontSize: '20px', fontWeight: '900', padding: '12px 12px 12px 36px', background: '#fef3c7', border: '2px solid transparent', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
+                  onBlur={(e) => e.target.style.borderColor = 'transparent'}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              {[...YEAR_END_LEVELS].reverse().map((level) => (
+                <div 
+                  key={level.label}
+                  style={{ padding: '12px', borderRadius: '8px', border: '2px solid', textAlign: 'center', background: annualPerformance >= level.threshold ? '#fef3c7' : '#f1f5f9', borderColor: annualPerformance >= level.threshold ? '#fbbf24' : '#e2e8f0', color: annualPerformance >= level.threshold ? '#92400e' : '#cbd5e1' }}
+                >
+                  <div style={{ fontSize: '10px', fontWeight: 'bold', marginBottom: '4px' }}>{level.label}</div>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>${(level.threshold / 10000).toLocaleString()}萬</div>
+                  <div style={{ fontSize: '11px', fontWeight: 'bold' }}>${level.bonus.toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style={{ background: '#1e293b', color: 'white', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+            <p style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>本月預估月薪</p>
+            <div style={{ fontSize: '32px', fontWeight: '900', marginBottom: '16px' }}>
+              ${Math.round(calculations.totalMonthlySalary).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '12px', space: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ color: '#cbd5e1' }}>底薪+協助</span>
+                <span>${(29500 + calculations.currentAllowance).toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ color: '#cbd5e1' }}>月獎金</span>
+                <span style={{ color: '#4ade80' }}>+${calculations.achievementBonus.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #475569', paddingTop: '8px' }}>
+                <span style={{ color: '#cbd5e1' }}>超額分紅</span>
+                <span style={{ color: '#4ade80' }}>+${calculations.excessBonus.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ background: '#f59e0b', color: 'white', borderRadius: '12px', padding: '20px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>年終獎金</p>
+            <div style={{ fontSize: '32px', fontWeight: '900', marginBottom: '8px' }}>
+              ${Math.round(calculations.totalYearEndBonus).toLocaleString()}
+            </div>
+            <p style={{ fontSize: '12px' }}>{calculations.currentYearEndLevel}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== 在校助理組件 ====================
+const SchoolStudentCalculator = ({ onBack }) => {
+  // 在校助理的月獎金等級（較低）
+  const STUDENT_MONTHLY_LEVELS = [
+    { threshold: 32000, bonus: 1200, label: 'L3 (高階)' },
+    { threshold: 29500, bonus: 600, label: 'L2 (中階)' },
+    { threshold: 25000, bonus: 200, label: 'L1 (基本)' },
+  ];
+
+  const [personalPerformance, setPersonalPerformance] = useState(30000);
+  const [hasAllowance, setHasAllowance] = useState(true);
+  const [hasTuitionSubsidy, setHasTuitionSubsidy] = useState(true);
+
+  const calculations = useMemo(() => {
+    const safePersonalPerformance = Number(personalPerformance) || 0;
+    
+    // 計算月達標獎金（L1/L2/L3）
+    let achievementBonus = 0;
+    let currentLevel = '未達標';
+    const sortedMonthly = [...STUDENT_MONTHLY_LEVELS].sort((a, b) => b.threshold - a.threshold);
+    for (const level of sortedMonthly) {
+      if (safePersonalPerformance >= level.threshold) {
+        achievementBonus = level.bonus;
+        currentLevel = level.label;
+        break;
+      }
+    }
+    
+    const excessBonus = Math.max(0, safePersonalPerformance - 29500);
+    const currentAllowance = hasAllowance ? 2500 : 0;
+    const currentTuitionSubsidy = hasTuitionSubsidy ? 1500 : 0;
+    const totalMonthlySalary = 29500 + currentAllowance + currentTuitionSubsidy + achievementBonus + excessBonus;
+    return { totalMonthlySalary, currentAllowance, currentTuitionSubsidy, achievementBonus, currentLevel, excessBonus };
+  }, [personalPerformance, hasAllowance, hasTuitionSubsidy]);
+
+  return (
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '14px', fontWeight: '500', marginBottom: '24px' }}>
+        ← 返回職位選擇
+      </button>
+
+      <div style={{ background: 'linear-gradient(to right, #e0e7ff, #f8fafc)', borderRadius: '16px', padding: '24px', border: '1px solid #c7d2fe', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>在校助理薪資試算</h2>
+        <p style={{ color: '#4b5563' }}>大學生/機構學生 · 包含學費補貼 $1,500</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>本月績效與補貼</h3>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>個人單月實績 (NT$)</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#cbd5e1', fontSize: '20px' }}>$</span>
+              <input 
+                type="number" 
+                value={personalPerformance}
+                onChange={(e) => { const v = e.target.value; setPersonalPerformance(v === "" ? "" : parseFloat(v) || 0); }}
+                style={{ width: '100%', fontSize: '20px', fontWeight: '900', padding: '12px 12px 12px 36px', background: '#f1f5f9', border: '2px solid transparent', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '20px' }}>
+            <button 
+              onClick={() => setHasAllowance(!hasAllowance)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', border: hasAllowance ? '1px solid #10b981' : '1px solid #e2e8f0', background: hasAllowance ? '#d1fae5' : '#f1f5f9', color: hasAllowance ? '#065f46' : '#64748b', cursor: 'pointer' }}
+            >
+              {hasAllowance ? '✓' : '○'} 店務協助 $2,500
+            </button>
+            <button 
+              onClick={() => setHasTuitionSubsidy(!hasTuitionSubsidy)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', border: hasTuitionSubsidy ? '1px solid #4f46e5' : '1px solid #e2e8f0', background: hasTuitionSubsidy ? '#e0e7ff' : '#f1f5f9', color: hasTuitionSubsidy ? '#312e81' : '#64748b', cursor: 'pointer' }}
+            >
+              {hasTuitionSubsidy ? '✓' : '○'} 學費補貼 $1,500
+            </button>
+          </div>
+
+          {/* 月業績達標獎勵金 L1/L2/L3 */}
+          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontSize: '13px', fontWeight: 'bold', color: '#475569', marginBottom: '12px' }}>月業績達標獎勵金</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              {STUDENT_MONTHLY_LEVELS.slice().reverse().map((level) => {
+                const isReached = personalPerformance >= level.threshold;
+                return (
+                  <div 
+                    key={level.label}
+                    style={{ padding: '10px', borderRadius: '8px', border: '2px solid', textAlign: 'center', background: isReached ? '#d1fae5' : '#f1f5f9', borderColor: isReached ? '#10b981' : '#e2e8f0', color: isReached ? '#065f46' : '#94a3b8' }}
+                  >
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>{level.label}</div>
+                    <div style={{ fontSize: '10px', marginBottom: '4px' }}>${level.threshold.toLocaleString()}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold' }}>+${level.bonus.toLocaleString()}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <p style={{ fontSize: '11px', color: '#9333ea', marginTop: '8px', fontWeight: 'bold', textAlign: 'center' }}>
+              目前獎金等級：{calculations.currentLevel} (+${calculations.achievementBonus.toLocaleString()})
+            </p>
+          </div>
+        </div>
+
+        <div style={{ background: '#1e293b', color: 'white', borderRadius: '12px', padding: '20px' }}>
+          <p style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>本月預估月薪</p>
+          <div style={{ fontSize: '32px', fontWeight: '900', marginBottom: '16px' }}>
+            ${Math.round(calculations.totalMonthlySalary).toLocaleString()}
+          </div>
+          <div style={{ fontSize: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>底薪</span>
+              <span>$29,500</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>店務協助</span>
+              <span>${calculations.currentAllowance.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>學費補貼</span>
+              <span>${calculations.currentTuitionSubsidy.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderTop: '1px solid #475569', paddingTop: '8px' }}>
+              <span>月達標獎金 ({calculations.currentLevel})</span>
+              <span style={{ color: '#4ade80' }}>+${calculations.achievementBonus.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>超額分紅</span>
+              <span style={{ color: '#4ade80' }}>+${calculations.excessBonus.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== 助理主管組件 ====================
+const ManagerCalculator = ({ onBack }) => {
+  const [personalPerformance, setPersonalPerformance] = useState(35000);
+  const [hasAllowance, setHasAllowance] = useState(true);
+  const [hasManagerBonus, setHasManagerBonus] = useState(true);
+  const [teamMembers, setTeamMembers] = useState([
+    { id: 1, name: '成員 A', performance: 50000 },
+    { id: 2, name: '成員 B', performance: 30000 }
+  ]);
+
+  const MONTHLY_BONUS_LEVELS = [
+    { threshold: 32000, bonus: 2500, label: 'L3 (高階)' },
+    { threshold: 29500, bonus: 1500, label: 'L2 (中階)' },
+    { threshold: 25000, bonus: 500, label: 'L1 (基本)' },
+  ];
+
+  const calculations = useMemo(() => {
+    const safePerf = Number(personalPerformance) || 0;
+    
+    let achievementBonus = 0;
+    let currentLevel = '未達標';
+    const sortedMonthly = [...MONTHLY_BONUS_LEVELS].sort((a, b) => b.threshold - a.threshold);
+    for (const level of sortedMonthly) {
+      if (safePerf >= level.threshold) {
+        achievementBonus = level.bonus;
+        currentLevel = level.label;
+        break;
+      }
+    }
+
+    const excessBonus = Math.max(0, safePerf - 29500);
+    const teamTotalPerformance = teamMembers.reduce((sum, m) => sum + (Number(m.performance) || 0), 0);
+    const teamBonus = teamTotalPerformance * 0.03;
+    const currentAllowance = hasAllowance ? 2500 : 0;
+    const currentManagerBonus = hasManagerBonus ? 7000 : 0;
+    const totalSalary = 29500 + currentAllowance + currentManagerBonus + achievementBonus + excessBonus + teamBonus;
+
+    return { achievementBonus, currentLevel, excessBonus, teamTotalPerformance, teamBonus, currentAllowance, currentManagerBonus, totalSalary };
+  }, [personalPerformance, teamMembers, hasAllowance, hasManagerBonus]);
+
+  const addMember = () => {
+    const newId = teamMembers.length ? Math.max(...teamMembers.map(m => m.id)) + 1 : 1;
+    setTeamMembers([...teamMembers, { id: newId, name: `新成員`, performance: 0 }]);
+  };
+
+  const removeMember = (id) => setTeamMembers(teamMembers.filter(m => m.id !== id));
+
+  const updateMember = (id, field, value) => {
+    setTeamMembers(teamMembers.map(m => {
+      if (m.id !== id) return m;
+      if (field === 'performance') {
+        return { ...m, performance: value === '' ? '' : (parseFloat(value) || 0) };
+      }
+      return { ...m, [field]: value };
+    }));
+  };
+
+  return (
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '14px', fontWeight: '500', marginBottom: '24px' }}>
+        ← 返回職位選擇
+      </button>
+
+      <div style={{ background: 'linear-gradient(to right, #ede9fe, #f8fafc)', borderRadius: '16px', padding: '24px', border: '1px solid #ddd6fe', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>助理主管薪資試算</h2>
+        <p style={{ color: '#4b5563' }}>個人績效 + 團隊分紅 3% + 職等加給 $7,000</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+        <div>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>個人績效設定</h3>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>個人單月實績 (NT$)</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#cbd5e1', fontSize: '20px' }}>$</span>
+                <input 
+                  type="number" 
+                  value={personalPerformance}
+                  onChange={(e) => { const v = e.target.value; setPersonalPerformance(v === "" ? "" : parseFloat(v) || 0); }}
+                  style={{ width: '100%', fontSize: '20px', fontWeight: '900', padding: '12px 12px 12px 36px', background: '#f1f5f9', border: '2px solid transparent', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <p style={{ fontSize: '11px', color: '#9333ea', marginTop: '6px', fontWeight: 'bold' }}>當前獎金等級：{calculations.currentLevel}</p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <button 
+                onClick={() => setHasAllowance(!hasAllowance)}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', background: hasAllowance ? '#4f46e5' : '#f1f5f9', color: hasAllowance ? 'white' : '#64748b' }}
+              >
+                {hasAllowance ? '✓' : '○'} 店務 $2,500
+              </button>
+              <button 
+                onClick={() => setHasManagerBonus(!hasManagerBonus)}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', background: hasManagerBonus ? '#9333ea' : '#f1f5f9', color: hasManagerBonus ? 'white' : '#64748b' }}
+              >
+                {hasManagerBonus ? '✓' : '○'} 主管加給 $7,000
+              </button>
+            </div>
+
+            {/* 月業績達標獎勵金 L1/L2/L3 */}
+            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
+              <h4 style={{ fontSize: '13px', fontWeight: 'bold', color: '#475569', marginBottom: '12px' }}>月業績達標獎勵金</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {MONTHLY_BONUS_LEVELS.slice().reverse().map((level) => {
+                  const isReached = personalPerformance >= level.threshold;
+                  return (
+                    <div 
+                      key={level.label}
+                      style={{ padding: '10px', borderRadius: '8px', border: '2px solid', textAlign: 'center', background: isReached ? '#ede9fe' : '#f1f5f9', borderColor: isReached ? '#9333ea' : '#e2e8f0', color: isReached ? '#5b21b6' : '#94a3b8' }}
+                    >
+                      <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>{level.label}</div>
+                      <div style={{ fontSize: '10px', marginBottom: '4px' }}>${level.threshold.toLocaleString()}</div>
+                      <div style={{ fontSize: '12px', fontWeight: 'bold' }}>+${level.bonus.toLocaleString()}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold' }}>團隊成員業績</h3>
+              <button 
+                onClick={addMember}
+                style={{ background: '#e0e7ff', color: '#4f46e5', border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+              >
+                + 新增
+              </button>
+            </div>
+            
+            <div style={{ display: 'grid', gap: '8px' }}>
+              {teamMembers.map((member) => (
+                <div key={member.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
+                  <input 
+                    type="text"
+                    value={member.name}
+                    onChange={(e) => updateMember(member.id, 'name', e.target.value)}
+                    style={{ flex: '1', background: 'transparent', border: 'none', fontSize: '13px', fontWeight: '500', outline: 'none' }}
+                  />
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '11px' }}>$</span>
+                    <input 
+                      type="number"
+                      value={member.performance}
+                      onChange={(e) => updateMember(member.id, 'performance', e.target.value)}
+                      style={{ background: 'white', border: 'none', borderRadius: '6px', padding: '6px 8px 6px 18px', textAlign: 'right', fontSize: '13px', fontWeight: 'bold', width: '110px' }}
+                    />
+                  </div>
+                  <button 
+                    onClick={() => removeMember(member.id)}
+                    style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', fontSize: '14px', padding: '4px' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '13px', color: '#64748b' }}>團隊總業績</span>
+              <span style={{ fontWeight: 'bold', color: '#9333ea', fontSize: '15px' }}>${calculations.teamTotalPerformance.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+              <span style={{ fontSize: '13px', color: '#64748b' }}>分紅 (3%)</span>
+              <span style={{ fontWeight: 'bold', color: '#10b981', fontSize: '15px' }}>+${Math.round(calculations.teamBonus).toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style={{ background: '#1e1b4b', color: 'white', borderRadius: '12px', padding: '24px', position: 'sticky', top: '80px' }}>
+            <p style={{ color: '#c7d2fe', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>預估本月總收入</p>
+            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '20px' }}>
+              ${Math.round(calculations.totalSalary).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: '#cbd5e1' }}>底薪</span>
+                <span>$29,500</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: '#cbd5e1' }}>店務協助</span>
+                <span>${calculations.currentAllowance.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: '#cbd5e1' }}>主管加給</span>
+                <span style={{ color: '#a78bfa' }}>+${calculations.currentManagerBonus.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: '#cbd5e1' }}>月獎金</span>
+                <span style={{ color: '#4ade80' }}>+${calculations.achievementBonus.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: '#cbd5e1' }}>個人超額</span>
+                <span style={{ color: '#4ade80' }}>+${calculations.excessBonus.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #4338ca', paddingTop: '10px' }}>
+                <span style={{ color: '#cbd5e1' }}>團隊分紅</span>
+                <span style={{ color: '#4ade80' }}>+${Math.round(calculations.teamBonus).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== 年度夥伴組件 ====================
+const PartnerCalculator = ({ onBack }) => {
+  const [revenue, setRevenue] = useState(4537485);
+  const [teachingHours, setTeachingHours] = useState(140);
+  const [adminMonths, setAdminMonths] = useState(0);
+
+  const TIERS = [
+    { limit: 2500000, rate: 0.007, label: '0~250萬' },
+    { limit: 3000000, rate: 0.025, label: '250~300萬' },
+    { limit: 3150000, rate: 0.020, label: '300~315萬' },
+    { limit: 3700000, rate: 0.025, label: '315~370萬' },
+    { limit: 3950000, rate: 0.030, label: '370~395萬' },
+    { limit: 4200000, rate: 0.040, label: '395~420萬' },
+    { limit: 4600000, rate: 0.045, label: '420~460萬' },
+    { limit: 5500000, rate: 0.080, label: '460~550萬' },
+    { limit: 7000000, rate: 0.120, label: '550~700萬' },
+  ];
+
+  const results = useMemo(() => {
+    const r = Number(revenue) || 0;
+    const h = Number(teachingHours) || 0;
+    const am = Math.min(Math.max(Number(adminMonths) || 0, 0), 12);
+
+    let potentialBonus = 0;
+    let breakdown = [];
+    let currentTier = null;
+    let lastLimit = 0;
+
+    for (let i = 0; i < TIERS.length; i++) {
+      const tier = TIERS[i];
+      if (r > lastLimit) {
+        const amountInTier = Math.min(r, tier.limit) - lastLimit;
+        const bonusInTier = amountInTier * tier.rate;
+        potentialBonus += bonusInTier;
+        breakdown.push({
+          label: tier.label,
+          amount: amountInTier,
+          rate: tier.rate,
+          bonus: bonusInTier
+        });
+        if (r <= tier.limit) {
+          currentTier = tier;
+          break;
+        }
+      }
+      lastLimit = tier.limit;
+    }
+
+    const hoursDeducted = am * 8;
+    const adjustedTarget = Math.max(0, 140 - hoursDeducted);
+    const realizationRate = adjustedTarget > 0 ? Math.min(h / adjustedTarget, 1) : 1;
+    const finalPayout = potentialBonus * realizationRate;
+
+    // 較舊制計算
+    const oldBonus = 28590;
+    const increment = finalPayout - oldBonus;
+    const incrementRate = oldBonus > 0 ? (increment / oldBonus) * 100 : 0;
+
+    return { potentialBonus, realizationRate, finalPayout, hoursDeducted, adjustedTarget, breakdown, currentTier, increment, incrementRate };
+  }, [revenue, teachingHours, adminMonths]);
+
+  return (
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '14px', fontWeight: '500', marginBottom: '24px' }}>
+        ← 返回職位選擇
+      </button>
+
+      <div style={{ background: 'linear-gradient(to right, #fef3c7, #f8fafc)', borderRadius: '16px', padding: '24px', border: '1px solid #fbbf24', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>2026 年度夥伴薪資試算</h2>
+        <p style={{ color: '#4b5563' }}>業績分層 + 教學時數 + 店務優待機制</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+        <div>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>年度業績與教學</h3>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>年度預計總業績 (NT$)</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#cbd5e1', fontSize: '20px' }}>$</span>
+                <input 
+                  type="number" 
+                  value={revenue}
+                  onChange={(e) => { const v = e.target.value; setRevenue(v === "" ? "" : parseFloat(v) || 0); }}
+                  style={{ width: '100%', fontSize: '20px', fontWeight: '900', padding: '12px 12px 12px 36px', background: '#fef3c7', border: '2px solid transparent', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              {results.currentTier && (
+                <p style={{ fontSize: '11px', color: '#92400e', marginTop: '6px', fontWeight: 'bold' }}>
+                  目前所在區間：{results.currentTier.label} ({(results.currentTier.rate * 100).toFixed(1)}%)
+                </p>
+              )}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>店務月份</label>
+                <input 
+                  type="number" 
+                  min="0" max="12"
+                  value={adminMonths}
+                  onChange={(e) => { const v = e.target.value; setAdminMonths(v === "" ? "" : parseFloat(v) || 0); }}
+                  style={{ width: '100%', fontSize: '18px', fontWeight: '900', padding: '12px', background: '#dbeafe', border: '2px solid transparent', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
+                />
+                <p style={{ fontSize: '11px', color: '#1e40af', marginTop: '6px' }}>抵扣：{results.hoursDeducted} 小時</p>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>教學時數</label>
+                <input 
+                  type="number" 
+                  value={teachingHours}
+                  onChange={(e) => { const v = e.target.value; setTeachingHours(v === "" ? "" : parseFloat(v) || 0); }}
+                  style={{ width: '100%', fontSize: '18px', fontWeight: '900', padding: '12px', background: '#d1fae5', border: '2px solid transparent', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
+                />
+                <p style={{ fontSize: '11px', color: '#065f46', marginTop: '6px' }}>目標：{results.adjustedTarget} 小時</p>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '16px', padding: '12px', background: '#1e293b', borderRadius: '8px', color: 'white' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#c7d2fe' }}>價值兌現率</span>
+                <span style={{ fontSize: '18px', fontWeight: '900' }}>{(results.realizationRate * 100).toFixed(0)}%</span>
+              </div>
+              <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', background: 'linear-gradient(90deg, #4f46e5, #9333ea)', width: `${results.realizationRate * 100}%`, transition: 'width 0.3s' }}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* 業績分層明細 */}
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>業績分層獎金明細</h3>
+            <div style={{ display: 'grid', gap: '6px' }}>
+              {results.breakdown.map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#fef3c7', borderRadius: '6px', fontSize: '12px' }}>
+                  <span style={{ color: '#92400e', fontWeight: '500' }}>{item.label}</span>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <span style={{ color: '#92400e', fontSize: '11px' }}>{(item.rate * 100).toFixed(1)}%</span>
+                    <span style={{ fontWeight: 'bold', color: '#78350f', minWidth: '80px', textAlign: 'right' }}>${Math.round(item.bonus).toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style={{ background: '#0f172a', color: 'white', borderRadius: '12px', padding: '24px', position: 'sticky', top: '80px' }}>
+            <p style={{ color: '#fbbf24', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px' }}>2026 年度實領獎金</p>
+            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '20px' }}>
+              ${Math.round(results.finalPayout).toLocaleString()}
+            </div>
+            
+            <div style={{ display: 'grid', gap: '10px', fontSize: '12px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px' }}>
+                <div style={{ color: '#94a3b8', marginBottom: '4px', fontSize: '11px' }}>分紅潛力（滿分）</div>
+                <div style={{ fontSize: '18px', fontWeight: '900' }}>${Math.round(results.potentialBonus).toLocaleString()}</div>
+              </div>
+
+              <div style={{ background: 'rgba(16, 185, 129, 0.15)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                <div style={{ color: '#6ee7b7', marginBottom: '4px', fontSize: '11px' }}>價值兌現率</div>
+                <div style={{ fontSize: '18px', fontWeight: '900', color: '#4ade80' }}>{(results.realizationRate * 100).toFixed(0)}%</div>
+              </div>
+
+              {results.incrementRate !== 0 && (
+                <div style={{ background: results.increment > 0 ? 'rgba(168, 85, 247, 0.15)' : 'rgba(239, 68, 68, 0.15)', padding: '12px', borderRadius: '8px', border: results.increment > 0 ? '1px solid rgba(168, 85, 247, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)' }}>
+                  <div style={{ color: results.increment > 0 ? '#c4b5fd' : '#fca5a5', marginBottom: '4px', fontSize: '11px' }}>較舊制增幅</div>
+                  <div style={{ fontSize: '16px', fontWeight: '900', color: results.increment > 0 ? '#a78bfa' : '#f87171' }}>
+                    {results.increment > 0 ? '+' : ''}{results.incrementRate.toFixed(1)}%
+                  </div>
+                  <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: '4px' }}>
+                    舊制基準 $28,590
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== 職場指南組件 ====================
+const CareerGuide = ({ onBack }) => {
+  const [selectedLevel, setSelectedLevel] = useState(0);
+  const [openQA, setOpenQA] = useState(null);
+
+  const LEVELS = ["初始村","頭療師","新手村","初階","中階","中高階","高階","公司權益"];
+
+  const DATA = [
+    {
+      level:"初始村（助理）", tag:"入職起點",
+      competency:"以法定基本薪資為基礎。具備基本洗髮、環境維護及基礎協作能力。",
+      nextLevel:"頭療師",
+      currentPerks:[
+        {title:"法定基本薪資",desc:"薪資以國家法定基本工資為準"},
+        {title:"技術抽成制度",desc:"依技術服務次數獲得抽成，非業績制,專注服務品質"},
+      ],
+      nextGoals:[
+        {title:"技術與診斷能力",desc:"獨立執行頭皮分析、熟悉全系列 SPA 流程、具備基礎造型能力"},
+        {title:"服務與銷售能力",desc:"口條清晰、具顧客維繫能力、能銷售居家洗護產品"},
+      ],
+    },
+    {
+      level:"頭療師（頭皮專科師）", tag:"專科護理職",
+      competency:"專注頭皮健康管理與高階護理服務,具備顧客服務與銷售能力。",
+      nextLevel:"新手村準設計師",
+      currentPerks:[
+        {title:"排班權限解鎖",desc:"可排定「洗髮、護髮、SPA」專屬班表"},
+        {title:"開放指定預約",desc:"顧客可直接指定頭療相關服務"},
+        {title:"技術抽成制度",desc:"依服務次數與技術價值獲得回饋"},
+      ],
+      nextGoals:[
+        {title:"基礎技術解鎖",desc:"染髮、燙髮、剪髮等多項技能"},
+        {title:"⭐ 升等里程碑（兩項擇一達標即可）",desc:"以下兩個里程碑只要完成其中一項,即可晉升為新手村準設計師",isHeader:true},
+        {title:"里程碑 1：單月技術業績達標",desc:"累計兩個月,單月技術業績達 6 萬元",highlight:"6萬"},
+        {title:"里程碑 2：單月全品項業績達標",desc:"當月全品項業績達 10 萬元",highlight:"10萬"},
+      ],
+    },
+    {
+      level:"新手村準設計師（2026 V3）", tag:"市場磨練期",
+      competency:"擁抱市場,定義自我。由顧客反饋決定晉升,形塑符合市場需求的設計師樣貌。",
+      nextLevel:"初階設計師",
+      currentPerks:[
+        {title:"實習設計師排班資格",desc:"可在指定條件下接待客人,享有公司場地與器具支援"},
+        {title:"實習設計師收費標準",desc:"依「實習設計師／指定價位」收費"},
+      ],
+      nextGoals:[
+        {title:"升為初階：業績達標（兩項擇一）",desc:"申請前 16 個月內,達成 3 次單月業績 10 萬,或 16 個月內總技術業績達 100 萬",highlight:"10萬 / 總100萬"},
+        {title:"升為初階：行銷力",desc:"成立 IG 作品風格與人設定位"},
+      ],
+    },
+    {
+      level:"初階設計師", tag:"獨立接客階段",
+      competency:"具備獨立完成客戶服務的能力與溝通能力。",
+      nextLevel:"中階設計師",
+      currentPerks:[
+        {title:"月休 8 天",desc:"標準休假制度"},
+      ],
+      retentionLine:{
+        title:"保級業績低標",
+        threshold:"16 萬",
+        desc:"連續未達 16 萬將觸發降階機制,退回新手村準設計師。"
+      },
+      nextGoals:[
+        {title:"業績達標",desc:"申請前 16 個月內,達成 12 次單月業績",highlight:"22萬"},
+        {title:"行銷能力",desc:"Google 30 篇五星評論,維持社群活躍性"},
+      ],
+    },
+    {
+      level:"中階設計師", tag:"穩定成長階段",
+      competency:"基本業績 32 萬以上,協助店內教育。",
+      nextLevel:"中高階設計師",
+      currentPerks:[
+        {title:"月休 9 天",desc:"假日可安排「三」天"},
+        {title:"提早下班",desc:"19:00 無預約可提前下班"},
+      ],
+      retentionLine:{
+        title:"保級業績低標",
+        threshold:"25 萬",
+        desc:"連續未達 25 萬將觸發降階機制,退回初階設計師。"
+      },
+      nextGoals:[
+        {title:"業績達標",desc:"申請月往回推算 16 個月,達成 12 次單月業績",highlight:"32萬"},
+      ],
+    },
+    {
+      level:"中高階設計師", tag:"資深穩定階段",
+      competency:"基本業績 38 萬以上,穩定成長與協助店內教育。",
+      nextLevel:"高階設計師",
+      currentPerks:[
+        {title:"月休 10 天",desc:"假日無天數限制"},
+        {title:"提早下班",desc:"19:00 無預約可提前下班"},
+      ],
+      retentionLine:{
+        title:"保級業績低標",
+        threshold:"30 萬",
+        desc:"連續未達 30 萬將觸發降階機制,退回中階設計師。"
+      },
+      nextGoals:[
+        {title:"升為高階：年度業績累計達標 3 次",desc:"年度業績連續達標方可申請",highlight:"年 405萬"},
+        {title:"或：單一年度衝刺達標",desc:"單一年度破標即可申請",highlight:"年 550萬"},
+      ],
+    },
+    {
+      level:"高階設計師", tag:"頂尖技術職",
+      competency:"推算業績 33～45 萬區間。年度目標 405 萬以上,或單年衝刺 550 萬。",
+      nextLevel:null,
+      currentPerks:[
+        {title:"月休 10 天＋假日無限制",desc:"完全彈性排假"},
+        {title:"提早下班",desc:"18:00 無預約可提前下班"},
+        {title:"頂尖技術職",desc:"店內技術指標,具教育與傳承責任"},
+      ],
+      retentionLine:{
+        title:"保級業績低標",
+        threshold:"年 380 萬",
+        desc:"年度業績未達 380 萬將觸發降階機制,退回中高階設計師。"
+      },
+      nextGoals:[
+        {title:"已達頂尖職級",desc:"高階設計師為目前公司最高設計師職級。持續維持業績與技術水準,並擔負店內教育與品牌標竿責任。"},
+      ],
+    },
+    {
+      level:"公司規範權益與聲明", tag:"制度文件",
+      competency:"建立公開、透明且具彈性的制度。本規範設有定期檢視與動態調整機制。",
+      nextLevel:null,
+      qna:[
+        {q:"薪資如何計算？",a:"薪資包含底薪、獎金、補貼等多個部分,具體計算方式依職位而異。請使用薪資計算工具或諮詢人資部門。"},
+        {q:"升職需要多久？",a:"升職時間取決於業績達成情況。通常初階到中階需要 16 個月內達成 12 次業績達標。"},
+        {q:"降階機制如何運作？",a:"每個職階都有保級業績低標,若連續未達標將觸發降階機制,退回上一階級。詳情可參考各職階的「保級業績低標」說明。"},
+        {q:"是否有試用期？",a:"有。試用期內公司會全力協助新進員工了解公司文化和工作流程。"},
+      ],
+    },
+  ];
+
+  const d = DATA[selectedLevel];
+  const progress = (selectedLevel / (LEVELS.length - 1)) * 100;
+
+  return (
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px', paddingBottom: '100px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '14px', fontWeight: '500', marginBottom: '24px' }}>
+        ← 返回首頁
+      </button>
+
+      <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', marginBottom: '24px', position: 'sticky', top: '60px', zIndex: '40' }}>
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', marginBottom: '8px' }}>職階進度</div>
+          <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', background: 'linear-gradient(90deg, #4f46e5, #9333ea)', transition: 'width 0.3s', width: `${progress}%` }}></div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
+          {LEVELS.map((name, i) => (
+            <button
+              key={i}
+              onClick={() => { setSelectedLevel(i); setOpenQA(null); }}
+              style={{ padding: '8px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', background: selectedLevel === i ? '#4f46e5' : '#f1f5f9', color: selectedLevel === i ? 'white' : '#64748b', transition: 'all 0.2s' }}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: 'linear-gradient(to right, #e0e7ff, #f8fafc)', borderRadius: '12px', padding: '20px', border: '1px solid #c7d2fe', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>{d.level}</h2>
+            <p style={{ fontSize: '14px', color: '#4b5563' }}>{d.competency}</p>
+          </div>
+          <span style={{ fontSize: '12px', fontWeight: 'bold', background: 'white', padding: '6px 12px', borderRadius: '6px', color: '#64748b', whiteSpace: 'nowrap' }}>
+            {d.tag}
+          </span>
+        </div>
+      </div>
+
+      {d.currentPerks && (
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#64748b', marginBottom: '12px', textTransform: 'uppercase' }}>我現在享有</h3>
+          <div style={{ display: 'grid', gap: '12px' }}>
+            {d.currentPerks.map((perk, i) => (
+              <div key={i} style={{ background: 'white', borderRadius: '8px', padding: '16px', border: '1px solid #e2e8f0' }}>
+                <h4 style={{ fontWeight: 'bold', color: '#1e293b', fontSize: '14px', marginBottom: '4px' }}>{perk.title}</h4>
+                <p style={{ fontSize: '13px', color: '#64748b' }}>{perk.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {d.retentionLine && (
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#dc2626', marginBottom: '12px', textTransform: 'uppercase' }}>⚠️ 保級業績低標</h3>
+          <div style={{ background: 'linear-gradient(to right, #fef2f2, #fff7ed)', borderRadius: '8px', padding: '16px', border: '1px solid #fecaca' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+              <h4 style={{ fontWeight: 'bold', color: '#991b1b', fontSize: '14px' }}>{d.retentionLine.title}</h4>
+              <span style={{ display: 'inline-block', background: '#dc2626', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold' }}>
+                {d.retentionLine.threshold}
+              </span>
+            </div>
+            <p style={{ fontSize: '13px', color: '#7f1d1d', lineHeight: '1.6' }}>{d.retentionLine.desc}</p>
+          </div>
+        </div>
+      )}
+
+      {d.nextGoals && (
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#64748b', marginBottom: '12px', textTransform: 'uppercase' }}>{d.nextLevel ? `升到「${d.nextLevel}」需要` : '職級資訊'}</h3>
+          <div style={{ display: 'grid', gap: '12px' }}>
+            {d.nextGoals.map((goal, i) => {
+              if (goal.isHeader) {
+                return (
+                  <div key={i} style={{ background: 'linear-gradient(to right, #ede9fe, #ddd6fe)', borderRadius: '8px', padding: '14px 16px', border: '2px solid #a78bfa' }}>
+                    <h4 style={{ fontWeight: 'bold', color: '#5b21b6', fontSize: '14px', marginBottom: '4px' }}>{goal.title}</h4>
+                    <p style={{ fontSize: '13px', color: '#6d28d9' }}>{goal.desc}</p>
+                  </div>
+                );
+              }
+              return (
+                <div key={i} style={{ background: 'white', borderRadius: '8px', padding: '16px', border: '1px solid #e2e8f0' }}>
+                  <h4 style={{ fontWeight: 'bold', color: '#1e293b', fontSize: '14px', marginBottom: '4px' }}>{goal.title}</h4>
+                  <p style={{ fontSize: '13px', color: '#64748b', marginBottom: goal.highlight ? '8px' : '0' }}>{goal.desc}</p>
+                  {goal.highlight && (
+                    <span style={{ display: 'inline-block', background: '#e0e7ff', color: '#4f46e5', padding: '4px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>
+                      {goal.highlight}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {d.qna && (
+        <div>
+          <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#64748b', marginBottom: '12px', textTransform: 'uppercase' }}>常見問題</h3>
+          <div style={{ display: 'grid', gap: '8px' }}>
+            {d.qna.map((item, idx) => (
+              <div key={idx} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                <button 
+                  onClick={() => setOpenQA(openQA === idx ? null : idx)}
+                  style={{ width: '100%', textAlign: 'left', padding: '16px', border: 'none', background: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+                >
+                  {item.q}
+                  <span style={{ transform: openQA === idx ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>→</span>
+                </button>
+                {openQA === idx && (
+                  <div style={{ padding: '16px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '13px', color: '#64748b', lineHeight: '1.6' }}>
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==================== 主平台組件 ====================
+const CommaHairPlatform = () => {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [selectedPosition, setSelectedPosition] = useState(null);
+
+  if (currentPage === 'salary' && !selectedPosition) {
+    const positions = [
+      { id: 'full-time', name: '全職助理', subtitle: '非在校生', desc: '月獎金 + 年終 + 6% 提撥', color: '#4f46e5' },
+      { id: 'student', name: '在校助理', subtitle: '大學生/機構學生', desc: '學費補貼 + 月獎金', color: '#6366f1' },
+      { id: 'manager', name: '助理主管', subtitle: '管理職位', desc: '個人績效 + 團隊 3% 分紅', color: '#9333ea' },
+      { id: 'partner', name: '年度夥伴', subtitle: '戰略夥伴', desc: '業績分層 + 教學時數', color: '#f59e0b' },
+    ];
+
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        <nav style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '16px', position: 'sticky', top: '0', zIndex: '50' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #4f46e5, #9333ea)', borderRadius: '8px' }}></div>
+            <div>
+              <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>CommaHair 員工平台</h1>
+              <p style={{ fontSize: '12px', color: '#64748b' }}>薪資 + 職場發展一站式服務</p>
+            </div>
+          </div>
+        </nav>
+
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 16px' }}>
+          <button onClick={() => setCurrentPage('home')} style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '14px', fontWeight: '500', marginBottom: '24px' }}>
+            ← 返回首頁
+          </button>
+
+          <div style={{ background: 'linear-gradient(to right, #e0e7ff, #f8fafc)', borderRadius: '12px', padding: '24px', border: '1px solid #c7d2fe', marginBottom: '32px' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px' }}>薪資計算</h2>
+            <p style={{ color: '#4b5563' }}>選擇你的職位，進行薪資試算</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            {positions.map((pos) => (
+              <button
+                key={pos.id}
+                onClick={() => setSelectedPosition(pos.id)}
+                style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s', borderTop: `4px solid ${pos.color}` }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                <div style={{ fontSize: '28px', marginBottom: '12px' }}>💰</div>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '4px', color: '#1e293b' }}>{pos.name}</h3>
+                <p style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', marginBottom: '10px' }}>{pos.subtitle}</p>
+                <p style={{ fontSize: '13px', color: '#475569', marginBottom: '16px', lineHeight: '1.5' }}>{pos.desc}</p>
+                <div style={{ display: 'flex', alignItems: 'center', color: pos.color, fontWeight: 'bold', fontSize: '14px' }}>
+                  選擇此職位 →
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentPage === 'salary' && selectedPosition === 'full-time') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        <nav style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '16px', position: 'sticky', top: '0', zIndex: '50' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>全職助理薪資計算</h1>
+          </div>
+        </nav>
+        <FullTimeAssistantCalculator onBack={() => setSelectedPosition(null)} />
+      </div>
+    );
+  }
+
+  if (currentPage === 'salary' && selectedPosition === 'student') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        <nav style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '16px', position: 'sticky', top: '0', zIndex: '50' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>在校助理薪資計算</h1>
+          </div>
+        </nav>
+        <SchoolStudentCalculator onBack={() => setSelectedPosition(null)} />
+      </div>
+    );
+  }
+
+  if (currentPage === 'salary' && selectedPosition === 'manager') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        <nav style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '16px', position: 'sticky', top: '0', zIndex: '50' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>助理主管薪資計算</h1>
+          </div>
+        </nav>
+        <ManagerCalculator onBack={() => setSelectedPosition(null)} />
+      </div>
+    );
+  }
+
+  if (currentPage === 'salary' && selectedPosition === 'partner') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        <nav style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '16px', position: 'sticky', top: '0', zIndex: '50' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>年度夥伴薪資計算</h1>
+          </div>
+        </nav>
+        <PartnerCalculator onBack={() => setSelectedPosition(null)} />
+      </div>
+    );
+  }
+
+  if (currentPage === 'guide') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        <nav style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '16px', position: 'sticky', top: '0', zIndex: '50' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>職場生活指南 2026</h1>
+          </div>
+        </nav>
+        <CareerGuide onBack={() => setCurrentPage('home')} />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #f8fafc, #f1f5f9)' }}>
+      <nav style={{ background: 'white/80', backdropFilter: 'blur(10px)', borderBottom: '1px solid #e2e8f0', padding: '16px', position: 'sticky', top: '0', zIndex: '50' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #4f46e5, #9333ea)', borderRadius: '8px' }}></div>
+          <div>
+            <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>CommaHair 員工平台</h1>
+            <p style={{ fontSize: '12px', color: '#64748b' }}>薪資 + 職場發展一站式服務</p>
+          </div>
+        </div>
+      </nav>
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 16px' }}>
+        <div style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e293b', marginBottom: '16px' }}>歡迎來到 CommaHair</h2>
+          <p style={{ fontSize: '18px', color: '#4b5563' }}>薪資試算、職階進度、福利查詢——所有你需要的資訊，全部在這裡。</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px', marginBottom: '48px' }}>
+          <button
+            onClick={() => { setCurrentPage('salary'); setSelectedPosition(null); }}
+            style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px 24px', textAlign: 'left', cursor: 'pointer', transition: 'all 0.3s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-8px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
+            <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '4px', color: '#1e293b' }}>薪資計算</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>4大職位</p>
+            <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '24px' }}>快速試算月薪、獎金及年終。支持全職、在校、主管、夥伴4大職位。</p>
+            <div style={{ display: 'flex', alignItems: 'center', color: '#4f46e5', fontWeight: 'bold' }}>
+              開啟工具 →
+            </div>
+          </button>
+
+          <button
+            onClick={() => setCurrentPage('guide')}
+            style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px 24px', textAlign: 'left', cursor: 'pointer', transition: 'all 0.3s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-8px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
+            <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '4px', color: '#1e293b' }}>職場指南</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>職階發展</p>
+            <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '24px' }}>詳細的職位晉升路線、福利、業績目標及常見問題。</p>
+            <div style={{ display: 'flex', alignItems: 'center', color: '#4f46e5', fontWeight: 'bold' }}>
+              查看指南 →
+            </div>
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', paddingTop: '32px', borderTop: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>💼 薪資透明化</h4>
+            <p style={{ fontSize: '14px', color: '#4b5563' }}>根據你的職位、業績、獎金機制，即時計算預期薪資。</p>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>📈 職涯規劃</h4>
+            <p style={{ fontSize: '14px', color: '#4b5563' }}>清楚了解每個職階的要求、福利和晉升路線。</p>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>⚡ 即時查詢</h4>
+            <p style={{ fontSize: '14px', color: '#4b5563' }}>隨時隨地查看薪資、業績進度和職階要求。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<CommaHairPlatform/>);
+</script>
+</body>
+</html>
