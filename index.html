@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="COMMA HAIR 天母｜LINE 預約、價目表與設計師介紹">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>COMMA HAIR 天母</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500;600&display=swap">
+<style>
+  :root {
+    --bg: #eef0f1;
+    --paper: #f8f8f6;
+    --ink: #2f3a44;
+    --muted: #6d7883;
+    --line: #d5dadf;
+    --slate: #5f7a8c;
+    --slate-soft: #dfe6eb;
+    --sand: #c9b8a3;
+    --btn-ink: #f8f8f6;
+    --serif-en: "Cormorant Garamond", "Times New Roman", serif;
+    --serif-tc: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+    --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #1c2227; --paper: #232a30; --ink: #e6e9ec; --muted: #9aa5ae;
+      --line: #36404a; --slate: #8ea7b8; --slate-soft: #2c3740; --sand: #b3a28c; --btn-ink: #1c2227;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #1c2227; --paper: #232a30; --ink: #e6e9ec; --muted: #9aa5ae;
+    --line: #36404a; --slate: #8ea7b8; --slate-soft: #2c3740; --sand: #b3a28c; --btn-ink: #1c2227;
+  }
+
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+  .wrap { max-width: 440px; margin: 0 auto; padding-inline: 18px; padding-block: 40px 56px; display: flex; flex-direction: column; gap: 28px; }
+
+  header { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .mark { width: 76px; height: 76px; border-radius: 50%; background: var(--paper); border: 1px solid var(--line); display: grid; place-items: center; }
+  .mark svg { width: 40px; height: 40px; }
+  .brand { font-family: var(--serif-en); font-weight: 600; font-size: 30px; letter-spacing: 0.14em; line-height: 1.1; }
+  .brand span { font-style: italic; font-weight: 500; letter-spacing: 0.04em; color: var(--slate); }
+  .tagline { font-family: var(--serif-tc); font-size: 17px; letter-spacing: 0.12em; text-wrap: balance; }
+  .meta { color: var(--muted); font-size: 13px; letter-spacing: 0.04em; }
+
+  .actions { display: flex; flex-direction: column; gap: 10px; }
+  .btn { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-radius: 12px; text-decoration: none; font-weight: 500; letter-spacing: 0.06em; transition: transform .15s ease, background .15s ease; }
+  .btn.primary { background: var(--slate); color: var(--btn-ink); }
+  .btn.secondary { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:focus-visible, .stylist:focus-visible, .copy:focus-visible { outline: 2px solid var(--slate); outline-offset: 3px; }
+  .btn .arr { opacity: .7; font-family: var(--serif-en); font-size: 18px; }
+
+  .phone { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; border-radius: 12px; border: 1px dashed var(--line); }
+  .phone a { color: var(--ink); text-decoration: none; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; font-weight: 500; }
+  .phone small { color: var(--muted); font-size: 12px; display: block; letter-spacing: 0.04em; }
+  .copy { font: inherit; font-size: 12px; color: var(--slate); background: var(--slate-soft); border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+
+  h2 { display: flex; align-items: baseline; gap: 10px; font-family: var(--serif-tc); font-weight: 600; font-size: 16px; letter-spacing: 0.16em; margin: 0 0 12px; }
+  h2 em { font-family: var(--serif-en); font-style: italic; font-weight: 500; color: var(--muted); letter-spacing: 0.06em; font-size: 15px; }
+
+  .stylists { display: flex; flex-direction: column; gap: 8px; }
+  .stylist { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 12px; padding: 14px 16px; background: var(--paper); border-radius: 12px; text-decoration: none; color: var(--ink); border: 1px solid transparent; transition: border-color .15s ease; }
+  
+  .stylist .name { font-family: var(--serif-en); font-weight: 600; font-size: 20px; letter-spacing: 0.12em; }
+  .stylist .spec { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .stylist .arr { color: var(--sand); font-family: var(--serif-en); font-size: 18px; }
+
+  .prices { display: flex; flex-direction: column; gap: 8px; }
+  details { background: var(--paper); border-radius: 12px; border: 1px solid transparent; }
+  details[open] { border-color: var(--line); }
+  summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary:focus-visible { outline: 2px solid var(--slate); outline-offset: 2px; border-radius: 12px; }
+  summary .t { font-family: var(--serif-tc); font-weight: 600; letter-spacing: 0.12em; }
+  summary .en { font-family: var(--serif-en); font-style: italic; color: var(--muted); font-size: 14px; margin-left: 8px; letter-spacing: 0.04em; }
+  summary .pm { color: var(--sand); font-family: var(--serif-en); font-size: 20px; line-height: 1; transition: transform .2s ease; }
+  details[open] summary .pm { transform: rotate(45deg); }
+  .pbody { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .intro { color: var(--muted); font-size: 13px; margin: 0; }
+  .tbl { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+  th, td { padding: 8px 6px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; white-space: normal; }
+  thead th { font-weight: 500; font-size: 12px; color: var(--muted); letter-spacing: 0.08em; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.span { text-align: right; color: var(--muted); font-size: 13px; }
+  td small.nx { display: block; margin-top: 2px; font-size: 12px; color: var(--sand); font-weight: 500; white-space: nowrap; }
+  td small.nx span { font-size: 10px; letter-spacing: 0.02em; margin-right: 4px; opacity: .85; }
+  th.vip, td.vip { color: var(--slate); font-weight: 600; }
+  .star { color: var(--sand); margin-right: 3px; font-size: 0.9em; }
+  td small { display: block; color: var(--muted); font-size: 12px; line-height: 1.4; }
+  .steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+  .steps li { display: grid; grid-template-columns: 2.6em 1fr; gap: 6px; }
+  .steps b { font-family: var(--serif-tc); color: var(--slate); font-weight: 600; }
+  .notes { margin: 0; padding: 12px 16px; border-radius: 12px; background: var(--slate-soft); font-size: 13px; display: flex; flex-direction: column; gap: 4px; list-style: none; }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; letter-spacing: 0.06em; display: flex; flex-direction: column; gap: 4px; }
+  @media (prefers-reduced-motion: reduce) { .btn, .stylist { transition: none; } .btn:hover { transform: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 40 40" fill="none"><path d="M24 12a6 6 0 1 1-6 6c0 6 2 11-5 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="color:var(--slate)"/><circle cx="18" cy="18" r="6" fill="var(--slate)"/></svg>
+    </div>
+    <div class="brand">COMMA <span>Hair</span></div>
+    <div class="tagline" id="tagline"></div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <section class="actions" id="actions" aria-label="預約與聯絡"></section>
+
+  <section aria-labelledby="st-h">
+    <h2 id="st-h">設計師 <em>Stylists</em></h2>
+    <div class="stylists" id="stylists"></div>
+  </section>
+
+  <section id="price" aria-labelledby="pr-h">
+    <h2 id="pr-h">價目表 <em>2026 Menu</em></h2>
+    <div class="prices" id="prices"></div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+/* ===== 內容設定：之後改文字或連結，改這裡就好 ===== */
+const SITE = {
+  tagline: "天母的療癒髮廊",
+  meta: "士林區磺溪街90號 · 11:00–19:30",
+  phone: "02 2831 2196",
+  links: [
+    { label: "LINE 線上預約・諮詢", url: "https://page.line.me/907seqyy", primary: true },
+    { label: "2026 價目表", url: "#price" },
+    { label: "COMMA 官方 IG", url: "https://www.instagram.com/comma_hairsalon/" }
+  ],
+  stylists: [
+    { name: "WIN",  spec: "質感短髮・調色" },
+    { name: "AMY",  spec: "鬆軟燙・齊短髮・中長髮波紋" },
+    { name: "HANA", spec: "線條光線染・質感髮色・蓬鬆層次" },
+    { name: "NINA", spec: "縮毛矯正・光澤感捲髮・特調髮色" },
+    { name: "UMI",  spec: "韓系風格・質感波紋・鬆軟燙・簡約短髮" },
+    { name: "YOKO", spec: "自然柔膚髮色・蓬鬆線條裁剪" }
+  ],
+  /* 價目表：cols = 欄位標題；rows = [項目, 價格...]；只有一個價格但要跨欄時用 { note: "..." } */
+  prices: [
+    { title: "剪髮", en: "Cut", cols: ["設計師", "男士", "女士"], rows: [
+      ["WIN", { v: 1200, next: 1400 }, { v: 1400, next: 1600 }],
+      ["HANA・AMY・NINA", { v: 1100, next: 1300 }, { v: 1200, next: 1400 }],
+      ["UMI・YOKO", { v: 900, next: 1100 }, { v: 1000, next: 1200 }],
+      ["兒童剪髮<small>洗髮另加 200</small>", { note: "", next: 800 }]    ], notes: ["剪髮含洗髮", "→ 後的小字為 2027/1/1 起生效的新價位"] },
+    { title: "燙・染", en: "Perm & Color", cols: ["項目", "XS", "S", "M", "L"], rows: [
+      ["手感燙", 2000, 2700, 3300, 4000],
+      ["縮毛矯正", 2000, 2800, 3500, 4300],
+      ["單色染", 1800, 2200, 2600, 3200],
+      ["挑染", 1500, 2000, 2200, 2800],
+      ["漂髮", { note: "依溝通顏色報價" }],
+      ["區塊設計", { note: "1500" }],
+      ["局部燙髮", { note: "1500" }],
+      ["敏感頭皮加強隔離", { note: "+500" }],
+      ["去除頭皮頭髮殘留鹼劑", { note: "+500" }]
+    ], notes: ["長度過長 +500／厚度特厚 +500", "實際長度依現場設計師評估"] },
+    { title: "頂級髮療", en: "Treatment", intro: "京喚羽・黑耀光・羽柔光｜細緻完整的髮質照護，適用各類髮況，依設計師推薦採用。", cols: ["保養", "XS", "S", "M", "L"], rows: [
+      ["京／輕／黑", 1800, 2600, 3000, 3300],
+      ["熱酸／羽柔光", 2400, 2900, 3800, 4300]
+    ], notes: ["長度過長 +500／厚度特厚 +500"] },
+    { title: "comma .spa 淨", en: "Wash", cols: ["項目", "價格"], rows: [
+      ["L1<small>單純洗淨</small>", { v: 500, next: "停止提供" }],
+      ["L2<small>特選洗髮品牌 → 熱敷 → 頭皮精華</small>", { v: 800, next: "更名養護洗髮 800" }],
+      ["加購｜頭皮頭髮卸妝服務<small>5 分鐘</small>", "1000 up"],
+      ["加購｜頭皮精華<small>火山淚・舒緩・健髮 任選</small>", 600]
+    ], notes: ["2027/1/1 起洗髮服務僅保留養護洗髮 800"] },
+    { title: "SPA 保養", en: "with Acupressure", intro: "含洗髮與 20 分鐘指壓（肩頸 10 分鐘＋頭皮 10 分鐘）。依頭皮需求任選一款，全系列同價。", cols: ["方案", "一般", "VIP"], rows: [
+      ["單次", 3000, 2700],
+      ["搭配剪髮", 2700, 2400]
+    ], steps: [
+      ["火山", "MYVEG｜清潔油脂與老廢角質，每月一次的頭皮大掃除"],
+      ["平衡", "OWAY｜清潔多餘油脂、調理頭皮油水平衡，體感帶涼"],
+      ["淨化", "OWAY｜米蠟去角質，同屬角質更新"],
+      ["舒緩", "OWAY｜舒緩放鬆頭皮，不涼的版本"],
+      ["森根", "PREVIA 森系列｜滋養頭皮與髮根，打造健康的頭皮環境"]
+    ] },
+    { title: "頭皮保養", en: "Scalp Care", intro: "含洗髮，不含指壓。流程：森潤活油 → 精華／淨化露 → 去角質 → 泥膜 → 頭皮水", cols: ["方案", "一般", "VIP"], rows: [
+      ["單次", 1800, 1260],
+      ["搭配剪髮", 1500, 1260],
+      ["加購 20 分鐘按壓 SPA", "+1000", "+800"]
+    ], notes: ["VIP 搭配剪髮不另折抵"] }
+  ],
+  priceNotes: ["消費任一 SPA 服務，頭皮養護安瓶 10 入 8 折加購（原價 3000，優惠價 2400）", "單項目計價，只有剪髮含洗髮", "洗髮不包含電棒造型與盤髮"],
+  footer: ["逗號造型沙龍 · COMMA HAIR・天母", "遇見更好的自己"]
+};
+/* ============================================== */
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+document.getElementById("tagline").textContent = SITE.tagline;
+document.getElementById("meta").textContent = SITE.meta;
+
+const tel = SITE.phone.replace(/\s/g, "");
+document.getElementById("actions").innerHTML =
+  SITE.links.map(l => `<a class="btn ${l.primary ? "primary" : "secondary"}" href="${esc(l.url)}"${l.url.startsWith("#") ? "" : ' target="_blank" rel="noopener"'}>${esc(l.label)}<span class="arr">→</span></a>`).join("") +
+  `<div class="phone"><div><small>電話預約</small><a href="tel:${esc(tel)}">${esc(SITE.phone)}</a></div><button class="copy" id="copyPhone" type="button">複製號碼</button></div>`;
+
+document.getElementById("stylists").innerHTML = SITE.stylists.map(s =>
+  `<div class="stylist"><span class="name">${esc(s.name)}</span><span class="spec">${esc(s.spec)}</span></div>`
+).join("");
+
+const num = v => typeof v === "number" ? v.toLocaleString("en-US") : esc(v);
+const nx = n => n === undefined ? "" : `<small class="nx"><span>2027/1/1</span>→ ${num(n)}</small>`;
+const fmt = v => (v && typeof v === "object") ? num(v.v) + nx(v.next) : num(v);
+document.getElementById("prices").innerHTML = SITE.prices.map((p, i) => {
+  const n = p.cols.length - 1;
+  const rows = p.rows.map(r => {
+    const [name, ...vals] = r;
+    const cells = vals.length === 1 && vals[0] && typeof vals[0] === "object" && "note" in vals[0]
+      ? `<td class="span" colspan="${n}">${esc(vals[0].note)}${nx(vals[0].next)}</td>`
+      : vals.map((v, j) => {
+          const vip = p.cols[j + 1] === "VIP";
+          return `<td${vip ? ' class="vip"' : ""}>${vip ? '<span class="star" aria-hidden="true">★</span>' : ""}${fmt(v)}</td>`;
+        }).join("");
+    return `<tr><td>${name}</td>${cells}</tr>`;
+  }).join("");
+  return `<details id="price-${i}"${i === 0 ? " open" : ""}>
+    <summary><span><span class="t">${esc(p.title)}</span><span class="en">${esc(p.en || "")}</span></span><span class="pm">+</span></summary>
+    <div class="pbody">
+      ${p.intro ? `<p class="intro">${esc(p.intro)}</p>` : ""}
+      <div class="tbl"><table><thead><tr>${p.cols.map(c => c === "VIP" ? `<th class="vip"><span class="star" aria-hidden="true">★</span>VIP</th>` : `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>
+      ${p.steps ? `<ul class="steps">${p.steps.map(s => `<li><b>${esc(s[0])}</b>${esc(s[1])}</li>`).join("")}</ul>` : ""}
+      ${p.notes ? `<ul class="notes">${p.notes.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+    </div></details>`;
+}).join("") + `<ul class="notes">${SITE.priceNotes.map(t => `<li>${esc(t)}</li>`).join("")}</ul>`;
+
+document.getElementById("footer").innerHTML = SITE.footer.map(t => `<div>${esc(t)}</div>`).join("");
+
+document.getElementById("copyPhone").addEventListener("click", e => {
+  const b = e.currentTarget;
+  navigator.clipboard.writeText(SITE.phone).then(() => { b.textContent = "已複製"; setTimeout(() => b.textContent = "複製號碼", 1600); })
+    .catch(() => { const r = document.createRange(); r.selectNodeContents(document.querySelector(".phone a")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+});
+</script>
+
+</body>
+</html>
